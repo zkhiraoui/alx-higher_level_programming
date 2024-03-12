@@ -1,21 +1,22 @@
 #!/usr/bin/node
 
-// Specifies the path to the Node.js interpreter, indicating that the script should be executed with Node.js.
+// Specifies the path to the Node.js interpreter for the script execution.
 
 exports.nbOccurences = function (list, searchElement) {
-  // Defines a function to count how many times a specific element appears in an array.
-
-  let nOccurrences = 0; 
-  // Initializes a counter to track the occurrences of the searchElement in the array.
+  // Function to count occurrences of searchElement in the list.
+  
+  let count = 0; 
+// Initialize count to keep track of the occurrences.
 
   for (let i = 0; i < list.length; i++) {
-    // Loops through each element of the array to compare with searchElement.
-    if (searchElement === list[i]) {
-      // Checks if the current element of the array matches the searchElement.
-      nOccurrences++; // Increments the counter if a match is found.
+    // Iterate over each element in the list to check for matches.
+    if (list[i] === searchElement) {
+      // If the current element matches the searchElement,
+      count++; 
+      // increment the count.
     }
   }
 
-  return nOccurrences; // Returns the total number of occurrences found.
+  return count; 
+// Return the total number of occurrences found.
 };
-
