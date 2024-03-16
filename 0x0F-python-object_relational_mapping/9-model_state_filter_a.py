@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """
-Prints State objects from the 'hbtn_0e_6_usa' database where the name contains 'a'.
+Prints State objects from the 'hbtn_0e_6_usa' database,
+where the name contains 'a'.
 """
 import sys
 from model_state import Base, State
