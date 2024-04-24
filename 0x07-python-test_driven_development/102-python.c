@@ -1,5 +1,11 @@
 #include "Python.h"
 
+/**
+ * print_python_string - Prints information about Python strings.
+ * @p: A PyObject string object.
+ *
+ * Author: zkhiraoui
+ */
 void print_python_string(PyObject *p)
 {
 	long int length;
