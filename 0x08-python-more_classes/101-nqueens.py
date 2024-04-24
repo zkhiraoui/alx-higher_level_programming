@@ -1,96 +1,145 @@
+#!/usr/bin/python3
 """Solves the N-queens puzzle.
 
-This script finds all possible solutions for placing N non-attacking queens on an NxN chessboard, where N is a user-provided integer greater than or equal to 4.
+Determines all possible solutions for placing N non-attacking queens on an NxN chessboard.
 
-Usage:
-    Run the script with N as an argument, e.g., `./101-nqueens.py 4` for a 4x4 chessboard.
+Example:
+    $ ./101-nqueens.py N
+
+N must be an integer greater than or equal to 4.
 
 Attributes:
-    board (list): Represents the chessboard as a list of lists. Initialized with spaces to denote empty squares.
-    solutions (list): Accumulates the valid board configurations, each showing the positions of N queens.
+    board (list): A list of lists representing the chessboard.
+    solutions (list): A list of lists containing solutions.
 
-Each solution is formatted as a list of [row, column] pairs, indicating where queens are placed on the board.
+Solutions are represented in the format [[r, c], [r, c], [r, c], [r, c]],
+where `r` and `c` represent the row and column, respectively, where a queen must be placed on the chessboard.
 """
-
 import sys
 
 
 def init_board(n):
-    """Initializes an NxN chessboard filled with spaces to denote empty squares.
+    """Initialize an `n`x`n` sized chessboard with 0's.
 
     Args:
         n (int): The size of the chessboard.
 
     Returns:
-        A 2D list representing the chessboard.
+        list: The initialized chessboard.
     """
-    return [[' ' for _ in range(n)] for _ in range(n)]
+    board = []
+    [board.append([]) for _ in range(n)]
+    [row.append(' ') for _ in range(n) for row in board]
+    return board
 
 
 def board_deepcopy(board):
-    """Creates a deep copy of the chessboard.
+    """Return a deepcopy of a chessboard.
 
     Args:
         board (list): The chessboard to be copied.
 
     Returns:
-        A new, independent copy of the chessboard.
+        list: A deep copy of the chessboard.
     """
-    return [row[:] for row in board]
+    if isinstance(board, list):
+        return list(map(board_deepcopy, board))
+    return board
 
 
 def get_solution(board):
-    """Extracts the queen positions from the chessboard.
+    """Return the list of lists representation of a solved chessboard.
 
     Args:
-        board (list): A chessboard configuration with queens placed.
+        board (list): The chessboard with queens placed.
 
     Returns:
-        A list of [row, column] pairs where queens are placed.
+        list: A list of queen positions in the format [[r, c], [r, c], [r, c], [r, c]].
     """
-    return [[r, c] for r in range(len(board)) for c in range(len(board)) if board[r][c] == "Q"]
+    solution = []
+    for r in range(len(board)):
+        for c in range(len(board)):
+            if board[r][c] == "Q":
+                solution.append([r, c])
+                break
+    return solution
 
 
 def xout(board, row, col):
-    """Marks squares where queens cannot be placed due to chess rules.
+    """X out spots on a chessboard.
 
-    Updates the board in-place, marking squares under attack from a queen placed at (row, col) with 'x'.
+    All spots where non-attacking queens can no
+    longer be placed are marked with 'x'.
 
     Args:
-        board (list): The chessboard.
-        row (int): Row index of the newly placed queen.
-        col (int): Column index of the newly placed queen.
+        board (list): The current working chessboard.
+        row (int): The row where a queen was last placed.
+        col (int): The column where a queen was last placed.
     """
-    n = len(board)
-    for i in range(n):
-        for j in range(n):
-            if i == row or j == col or abs(row - i) == abs(col - j):
-                if board[i][j] == ' ':
-                    board[i][j] = 'x'
+    # X out all forward spots
+    for c in range(col + 1, len(board)):
+        board[row][c] = "x"
+    # X out all backward spots
+    for c in range(col - 1, -1, -1):
+        board[row][c] = "x"
+    # X out all spots below
+    for r in range(row + 1, len(board)):
+        board[r][col] = "x"
+    # X out all spots above
+    for r in range(row - 1, -1, -1):
+        board[r][col] = "x"
+    # X out all spots diagonally down to the right
+    c = col + 1
+    for r in range(row + 1, len(board)):
+        if c >= len(board):
+            break
+        board[r][c] = "x"
+        c += 1
+    # X out all spots diagonally up to the left
+    c = col - 1
+    for r in range(row - 1, -1, -1):
+        if c < 0:
+            break
+        board[r][c] = "x"
+        c -= 1
+    # X out all spots diagonally up to the right
+    c = col + 1
+    for r in range(row - 1, -1, -1):
+        if c >= len(board):
+            break
+        board[r][c] = "x"
+        c += 1
+    # X out all spots diagonally down to the left
+    c = col - 1
+    for r in range(row + 1, len(board)):
+        if c < 0:
+            break
+        board[r][c] = "x"
+        c -= 1
 
 
 def recursive_solve(board, row, queens, solutions):
-    """Recursively searches for all solutions to the N-queens puzzle.
+    """Recursively solve an N-queens puzzle.
 
     Args:
-        board (list): The current chessboard.
-        row (int): The current row being examined.
-        queens (int): The number of queens placed so far.
-        solutions (list): Accumulated solutions.
+        board (list): The current working chessboard.
+        row (int): The current working row.
+        queens (int): The current number of placed queens.
+        solutions (list): A list of lists containing solutions.
 
     Returns:
-        The solutions list, updated with any new solutions found.
+        list: A list of lists representing the solutions.
     """
     if queens == len(board):
         solutions.append(get_solution(board))
         return solutions
 
-    for col in range(len(board)):
-        if board[row][col] == ' ':
-            new_board = board_deepcopy(board)
-            new_board[row][col] = 'Q'
-            xout(new_board, row, col)
-            recursive_solve(new_board, row + 1, queens + 1, solutions)
+    for c in range(len(board)):
+        if board[row][c] == " ":
+            tmp_board = board_deepcopy(board)
+            tmp_board[row][c] = "Q"
+            xout(tmp_board, row, c)
+            solutions = recursive_solve(tmp_board, row + 1, queens + 1, solutions)
 
     return solutions
 
@@ -99,12 +148,14 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    N = sys.argv[1]
-    if not N.isdigit() or int(N) < 4:
-        print("N must be a number and at least 4")
+    if not sys.argv[1].isdigit():
+        print("N must be a number")
+        sys.exit(1)
+    if int(sys.argv[1]) < 4:
+        print("N must be at least 4")
         sys.exit(1)
 
-    board = init_board(int(N))
+    board = init_board(int(sys.argv[1]))
     solutions = recursive_solve(board, 0, 0, [])
-    for solution in solutions:
-        print(solution)
+    for sol in solutions:
+        print(sol)
